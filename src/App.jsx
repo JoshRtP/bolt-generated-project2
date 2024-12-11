@@ -12,14 +12,22 @@ function App() {
   const [isCreatingFramework, setIsCreatingFramework] = useState(false)
 
   const defaultCategories = {
-    'Configuration': innovationTypes.filter(type => type.category === 'Configuration'),
-    'Offering': innovationTypes.filter(type => type.category === 'Offering'),
-    'Experience': innovationTypes.filter(type => type.category === 'Experience')
+    'Configuration': {
+      color: '#1F77B4',
+      types: innovationTypes.filter(type => type.category === 'Configuration')
+    },
+    'Offering': {
+      color: '#FF7F0E',
+      types: innovationTypes.filter(type => type.category === 'Offering')
+    },
+    'Experience': {
+      color: '#2CA02C',
+      types: innovationTypes.filter(type => type.category === 'Experience')
+    }
   }
 
   const frameworksStorageKey = 'innovation-frameworks'
 
-  // Initialize frameworks with default framework
   useEffect(() => {
     const storedFrameworks = localStorage.getItem(frameworksStorageKey)
     const defaultFramework = {
@@ -31,14 +39,12 @@ function App() {
 
     if (storedFrameworks) {
       const parsedFrameworks = JSON.parse(storedFrameworks)
-      // Ensure default framework is always first
       setFrameworks([defaultFramework, ...parsedFrameworks.filter(f => f.id !== 'default')])
     } else {
       setFrameworks([defaultFramework])
     }
   }, [])
 
-  // Save frameworks to localStorage whenever they change
   useEffect(() => {
     if (frameworks.length > 0) {
       localStorage.setItem(frameworksStorageKey, JSON.stringify(frameworks))
@@ -54,7 +60,7 @@ function App() {
       setShowAll(true)
     } else {
       setSelectedCategory(category)
-      setActiveTypes(new Set(categories[category].map(type => type.id)))
+      setActiveTypes(new Set(categories[category].types.map(type => type.id)))
       setShowAll(true)
     }
   }
@@ -67,7 +73,7 @@ function App() {
   const handleShowAllClick = () => {
     setShowAll(true)
     if (selectedCategory) {
-      setActiveTypes(new Set(categories[selectedCategory].map(type => type.id)))
+      setActiveTypes(new Set(categories[selectedCategory].types.map(type => type.id)))
     }
   }
 
@@ -99,9 +105,10 @@ function App() {
     setSelectedFramework(framework)
   }
 
-  const handleEditFramework = (framework) => {
-    setSelectedFramework(framework)
-    setIsCreatingFramework(true)
+  const handleEditFramework = () => {
+    if (selectedFramework && !selectedFramework.isDefault) {
+      setIsCreatingFramework(true)
+    }
   }
 
   const handleDeleteFramework = (frameworkId) => {
@@ -116,6 +123,13 @@ function App() {
   const handleCancelFramework = () => {
     setIsCreatingFramework(false)
     setSelectedFramework(null)
+  }
+
+  const getCategoryStyle = (category) => {
+    const categoryData = categories[category]
+    return {
+      backgroundColor: categoryData.color || '#1F77B4'
+    }
   }
 
   return (
@@ -141,7 +155,7 @@ function App() {
           <button 
             className="edit-framework-btn"
             disabled={!selectedFramework || selectedFramework.isDefault}
-            onClick={() => handleEditFramework(selectedFramework)}
+            onClick={handleEditFramework}
           >
             Edit Framework
           </button>
@@ -170,6 +184,7 @@ function App() {
               key={category}
               className={`category-button ${category.toLowerCase()} ${selectedCategory === category ? 'selected' : ''}`}
               onClick={() => handleCategoryClick(category)}
+              style={getCategoryStyle(category)}
             >
               {category}
             </button>
@@ -182,15 +197,17 @@ function App() {
               <button
                 className={`show-all-button ${showAll ? 'selected' : ''}`}
                 onClick={handleShowAllClick}
+                style={{ color: categories[selectedCategory].color }}
               >
                 Show All
               </button>
               <div className="types-list">
-                {categories[selectedCategory].map(type => (
+                {categories[selectedCategory].types.map(type => (
                   <button
                     key={type.id}
                     className={`type-button ${activeTypes.has(type.id) ? 'selected' : ''}`}
                     onClick={() => handleTypeClick(type.id)}
+                    style={{ color: categories[selectedCategory].color }}
                   >
                     {type.title}
                   </button>
@@ -199,7 +216,7 @@ function App() {
             </div>
 
             <div className="details-panel">
-              {categories[selectedCategory]
+              {categories[selectedCategory].types
                 .filter(type => activeTypes.has(type.id))
                 .map(type => (
                   <div key={type.id} className="type-details">

@@ -13,7 +13,13 @@ function FrameworkCreator({ onSave, onCancel, initialData }) {
   useEffect(() => {
     if (initialData) {
       setFrameworkName(initialData.name)
-      setCategories(initialData.categories || [])
+      // Convert categories object to array format for editing
+      const categoriesArray = Object.entries(initialData.categories).map(([name, data]) => ({
+        name,
+        color: data.color,
+        types: data.types
+      }))
+      setCategories(categoriesArray)
     }
   }, [initialData])
 
@@ -35,7 +41,7 @@ function FrameworkCreator({ onSave, onCancel, initialData }) {
       }
       const newType = {
         ...currentType,
-        id: Date.now().toString(), // Add unique ID for each type
+        id: Date.now().toString(),
         subtypes: []
       }
       updatedCategories[selectedCategoryIndex].types.push(newType)
@@ -52,7 +58,7 @@ function FrameworkCreator({ onSave, onCancel, initialData }) {
       }
       updatedCategories[selectedCategoryIndex].types[selectedTypeIndex].subtypes.push({
         ...currentSubtype,
-        id: Date.now().toString() // Add unique ID for each subtype
+        id: Date.now().toString()
       })
       setCategories(updatedCategories)
       setCurrentSubtype({ title: '', description: '' })
@@ -71,10 +77,13 @@ function FrameworkCreator({ onSave, onCancel, initialData }) {
 
   const handleSave = () => {
     if (frameworkName && categories.length > 0) {
-      // Convert categories array to the expected format
+      // Convert categories array to the expected object format
       const formattedCategories = {}
       categories.forEach(category => {
-        formattedCategories[category.name] = category.types
+        formattedCategories[category.name] = {
+          color: category.color,
+          types: category.types
+        }
       })
 
       const framework = {

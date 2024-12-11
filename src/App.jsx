@@ -4,69 +4,119 @@ import './App.css'
 import FrameworkCreator from './components/FrameworkCreator'
 
 function App() {
-  // ... (previous state declarations remain the same)
+  const [selectedCategory, setSelectedCategory] = useState(null)
+  const [activeTypes, setActiveTypes] = useState(new Set())
+  const [showAll, setShowAll] = useState(true)
+  const [selectedFramework, setSelectedFramework] = useState(null)
+  const [frameworks, setFrameworks] = useState([])
+  const [isCreatingFramework, setIsCreatingFramework] = useState(false)
 
-  const handleEditFramework = (framework) => {
-    // Convert the framework categories object back to array format for the editor
-    const categoriesArray = Object.entries(framework.categories).map(([name, types]) => ({
-      name,
-      color: getColorForCategory(name), // We'll define this helper function
-      types: types.map(type => ({
-        ...type,
-        subtypes: type.subtypes || []
-      }))
-    }))
-
-    const frameworkForEdit = {
-      ...framework,
-      categories: categoriesArray
-    }
-    
-    setSelectedFramework(frameworkForEdit)
-    setIsCreatingFramework(true)
+  const defaultCategories = {
+    'Configuration': innovationTypes.filter(type => type.category === 'Configuration'),
+    'Offering': innovationTypes.filter(type => type.category === 'Offering'),
+    'Experience': innovationTypes.filter(type => type.category === 'Experience')
   }
 
-  // Helper function to get default colors for categories
-  const getColorForCategory = (categoryName) => {
-    const colorMap = {
-      'Configuration': '#1F77B4',
-      'Offering': '#FF7F0E',
-      'Experience': '#2CA02C'
+  const frameworksStorageKey = 'innovation-frameworks'
+
+  // Initialize frameworks with default framework
+  useEffect(() => {
+    const storedFrameworks = localStorage.getItem(frameworksStorageKey)
+    const defaultFramework = {
+      id: 'default',
+      name: '10 Types of Innovation',
+      isDefault: true,
+      categories: defaultCategories
     }
-    return colorMap[categoryName] || '#1F77B4' // Default color if not found
+
+    if (storedFrameworks) {
+      const parsedFrameworks = JSON.parse(storedFrameworks)
+      // Ensure default framework is always first
+      setFrameworks([defaultFramework, ...parsedFrameworks.filter(f => f.id !== 'default')])
+    } else {
+      setFrameworks([defaultFramework])
+    }
+  }, [])
+
+  // Save frameworks to localStorage whenever they change
+  useEffect(() => {
+    if (frameworks.length > 0) {
+      localStorage.setItem(frameworksStorageKey, JSON.stringify(frameworks))
+    }
+  }, [frameworks])
+
+  const categories = selectedFramework?.categories || defaultCategories
+
+  const handleCategoryClick = (category) => {
+    if (selectedCategory === category) {
+      setSelectedCategory(null)
+      setActiveTypes(new Set())
+      setShowAll(true)
+    } else {
+      setSelectedCategory(category)
+      setActiveTypes(new Set(categories[category].map(type => type.id)))
+      setShowAll(true)
+    }
+  }
+
+  const handleTypeClick = (typeId) => {
+    setShowAll(false)
+    setActiveTypes(new Set([typeId]))
+  }
+
+  const handleShowAllClick = () => {
+    setShowAll(true)
+    if (selectedCategory) {
+      setActiveTypes(new Set(categories[selectedCategory].map(type => type.id)))
+    }
+  }
+
+  const handleCreateFramework = () => {
+    setIsCreatingFramework(true)
+    setSelectedFramework(null)
   }
 
   const handleSaveFramework = (framework) => {
-    // Convert the categories array back to the required object format
-    const formattedCategories = {}
-    framework.categories.forEach(category => {
-      formattedCategories[category.name] = category.types
-    })
-
-    const updatedFramework = {
-      ...framework,
-      categories: formattedCategories
-    }
-
     if (framework.id) {
       // Edit existing framework
-      setFrameworks(frameworks.map(f => 
-        f.id === framework.id ? updatedFramework : f
-      ))
-      setSelectedFramework(updatedFramework)
+      setFrameworks(frameworks.map(f => f.id === framework.id ? framework : f))
     } else {
       // Create new framework
-      const newFramework = {
-        ...updatedFramework,
-        id: Date.now().toString()
-      }
+      const newFramework = { ...framework, id: Date.now().toString() }
       setFrameworks([...frameworks, newFramework])
       setSelectedFramework(newFramework)
     }
     setIsCreatingFramework(false)
   }
 
-  // ... (rest of the component remains the same)
+  const handleFrameworkChange = (e) => {
+    const frameworkId = e.target.value
+    if (!frameworkId) {
+      setSelectedFramework(null)
+      return
+    }
+    const framework = frameworks.find(f => f.id === frameworkId)
+    setSelectedFramework(framework)
+  }
+
+  const handleEditFramework = (framework) => {
+    setSelectedFramework(framework)
+    setIsCreatingFramework(true)
+  }
+
+  const handleDeleteFramework = (frameworkId) => {
+    if (frameworkId === 'default') {
+      alert('Cannot delete the default framework')
+      return
+    }
+    setFrameworks(frameworks.filter(f => f.id !== frameworkId))
+    setSelectedFramework(null)
+  }
+
+  const handleCancelFramework = () => {
+    setIsCreatingFramework(false)
+    setSelectedFramework(null)
+  }
 
   return (
     <div className="app">
@@ -75,10 +125,7 @@ function App() {
         <div className="framework-controls">
           <select 
             value={selectedFramework?.id || ''}
-            onChange={(e) => {
-              const selected = frameworks.find(f => f.id === e.target.value)
-              setSelectedFramework(selected || null)
-            }}
+            onChange={handleFrameworkChange}
             className="framework-select"
           >
             <option value="">10 Types of Innovation</option>
@@ -116,7 +163,62 @@ function App() {
         />
       )}
 
-      {/* ... (rest of the JSX remains the same) */}
+      <div className="container">
+        <div className={`main-categories ${selectedCategory ? 'horizontal' : ''}`}>
+          {Object.keys(categories).map(category => (
+            <button
+              key={category}
+              className={`category-button ${category.toLowerCase()} ${selectedCategory === category ? 'selected' : ''}`}
+              onClick={() => handleCategoryClick(category)}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+
+        {selectedCategory && (
+          <div className="content-area">
+            <div className={`types-panel ${selectedCategory.toLowerCase()}`}>
+              <button
+                className={`show-all-button ${showAll ? 'selected' : ''}`}
+                onClick={handleShowAllClick}
+              >
+                Show All
+              </button>
+              <div className="types-list">
+                {categories[selectedCategory].map(type => (
+                  <button
+                    key={type.id}
+                    className={`type-button ${activeTypes.has(type.id) ? 'selected' : ''}`}
+                    onClick={() => handleTypeClick(type.id)}
+                  >
+                    {type.title}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="details-panel">
+              {categories[selectedCategory]
+                .filter(type => activeTypes.has(type.id))
+                .map(type => (
+                  <div key={type.id} className="type-details">
+                    <h2>{type.title}</h2>
+                    <p>{type.description}</p>
+                    <div className="tactics-list">
+                      {type.subtypes.map((tactic, index) => (
+                        <div key={index} className="tactic-card">
+                          <h3>{tactic.title}</h3>
+                          <p>{tactic.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

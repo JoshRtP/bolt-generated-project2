@@ -27,21 +27,6 @@ function FrameworkCreator({ onSave, onCancel, initialData }) {
     }
   }
 
-  const handleUpdateCategory = (index, updatedCategory) => {
-    const newCategories = [...categories]
-    newCategories[index] = { ...newCategories[index], ...updatedCategory }
-    setCategories(newCategories)
-  }
-
-  const handleDeleteCategory = (index) => {
-    const newCategories = categories.filter((_, i) => i !== index)
-    setCategories(newCategories)
-    if (selectedCategoryIndex === index) {
-      setSelectedCategoryIndex(null)
-      setSelectedTypeIndex(null)
-    }
-  }
-
   const handleAddType = () => {
     if (currentType.title && selectedCategoryIndex !== null) {
       const updatedCategories = [...categories]
@@ -50,30 +35,12 @@ function FrameworkCreator({ onSave, onCancel, initialData }) {
       }
       const newType = {
         ...currentType,
-        id: Date.now().toString(),
+        id: Date.now().toString(), // Add unique ID for each type
         subtypes: []
       }
       updatedCategories[selectedCategoryIndex].types.push(newType)
       setCategories(updatedCategories)
       setCurrentType({ title: '', description: '' })
-    }
-  }
-
-  const handleUpdateType = (categoryIndex, typeIndex, updatedType) => {
-    const newCategories = [...categories]
-    newCategories[categoryIndex].types[typeIndex] = {
-      ...newCategories[categoryIndex].types[typeIndex],
-      ...updatedType
-    }
-    setCategories(newCategories)
-  }
-
-  const handleDeleteType = (categoryIndex, typeIndex) => {
-    const newCategories = [...categories]
-    newCategories[categoryIndex].types = newCategories[categoryIndex].types.filter((_, i) => i !== typeIndex)
-    setCategories(newCategories)
-    if (selectedTypeIndex === typeIndex) {
-      setSelectedTypeIndex(null)
     }
   }
 
@@ -85,39 +52,42 @@ function FrameworkCreator({ onSave, onCancel, initialData }) {
       }
       updatedCategories[selectedCategoryIndex].types[selectedTypeIndex].subtypes.push({
         ...currentSubtype,
-        id: Date.now().toString()
+        id: Date.now().toString() // Add unique ID for each subtype
       })
       setCategories(updatedCategories)
       setCurrentSubtype({ title: '', description: '' })
     }
   }
 
-  const handleUpdateSubtype = (categoryIndex, typeIndex, subtypeIndex, updatedSubtype) => {
-    const newCategories = [...categories]
-    newCategories[categoryIndex].types[typeIndex].subtypes[subtypeIndex] = {
-      ...newCategories[categoryIndex].types[typeIndex].subtypes[subtypeIndex],
-      ...updatedSubtype
-    }
-    setCategories(newCategories)
+  const handleSelectCategory = (index) => {
+    setSelectedCategoryIndex(index)
+    setSelectedTypeIndex(null)
   }
 
-  const handleDeleteSubtype = (categoryIndex, typeIndex, subtypeIndex) => {
-    const newCategories = [...categories]
-    newCategories[categoryIndex].types[typeIndex].subtypes = 
-      newCategories[categoryIndex].types[typeIndex].subtypes.filter((_, i) => i !== subtypeIndex)
-    setCategories(newCategories)
+  const handleSelectType = (categoryIndex, typeIndex) => {
+    setSelectedCategoryIndex(categoryIndex)
+    setSelectedTypeIndex(typeIndex)
   }
 
   const handleSave = () => {
     if (frameworkName && categories.length > 0) {
+      // Convert categories array to the expected format
+      const formattedCategories = {}
+      categories.forEach(category => {
+        formattedCategories[category.name] = category.types
+      })
+
       const framework = {
         id: initialData?.id,
         name: frameworkName,
-        categories: categories
+        categories: formattedCategories
       }
       onSave(framework)
     }
   }
+
+  const isValid = frameworkName.trim() !== '' && categories.length > 0 && 
+                 categories.every(cat => cat.types && cat.types.length > 0)
 
   return (
     <div className="framework-creator">
@@ -166,39 +136,14 @@ function FrameworkCreator({ onSave, onCancel, initialData }) {
             {categories.map((cat, index) => (
               <li 
                 key={index} 
-                className="category-item"
+                onClick={() => handleSelectCategory(index)}
+                style={{ 
+                  cursor: 'pointer',
+                  backgroundColor: selectedCategoryIndex === index ? '#f0f0f0' : 'transparent',
+                  borderLeft: `4px solid ${cat.color}`
+                }}
               >
-                <div 
-                  className="category-header"
-                  onClick={() => setSelectedCategoryIndex(index)}
-                  style={{ 
-                    backgroundColor: selectedCategoryIndex === index ? '#f0f0f0' : 'transparent',
-                    borderLeft: `4px solid ${cat.color}`
-                  }}
-                >
-                  <span>{cat.name}</span>
-                  <div className="category-actions">
-                    <button
-                      className="edit-button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setCurrentCategory({ name: cat.name, color: cat.color })
-                        handleUpdateCategory(index, { name: cat.name, color: cat.color })
-                      }}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="delete-button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleDeleteCategory(index)
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
+                {cat.name}
               </li>
             ))}
           </ul>
@@ -234,41 +179,13 @@ function FrameworkCreator({ onSave, onCancel, initialData }) {
             {selectedCategoryIndex !== null && categories[selectedCategoryIndex].types?.map((type, index) => (
               <li 
                 key={index}
-                className="type-item"
+                onClick={() => handleSelectType(selectedCategoryIndex, index)}
+                style={{ 
+                  cursor: 'pointer',
+                  backgroundColor: selectedTypeIndex === index ? '#f0f0f0' : 'transparent'
+                }}
               >
-                <div 
-                  className="type-header"
-                  onClick={() => setSelectedTypeIndex(index)}
-                  style={{ 
-                    backgroundColor: selectedTypeIndex === index ? '#f0f0f0' : 'transparent'
-                  }}
-                >
-                  <span>{type.title}</span>
-                  <div className="type-actions">
-                    <button
-                      className="edit-button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setCurrentType({ title: type.title, description: type.description })
-                        handleUpdateType(selectedCategoryIndex, index, { 
-                          title: type.title, 
-                          description: type.description 
-                        })
-                      }}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="delete-button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleDeleteType(selectedCategoryIndex, index)
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
+                {type.title}
               </li>
             ))}
           </ul>
@@ -303,30 +220,8 @@ function FrameworkCreator({ onSave, onCancel, initialData }) {
           <ul>
             {selectedTypeIndex !== null && 
              categories[selectedCategoryIndex]?.types[selectedTypeIndex]?.subtypes?.map((subtype, index) => (
-              <li key={index} className="subtype-item">
-                <div className="subtype-header">
-                  <span>{subtype.title}</span>
-                  <div className="subtype-actions">
-                    <button
-                      className="edit-button"
-                      onClick={() => {
-                        setCurrentSubtype({ title: subtype.title, description: subtype.description })
-                        handleUpdateSubtype(selectedCategoryIndex, selectedTypeIndex, index, {
-                          title: subtype.title,
-                          description: subtype.description
-                        })
-                      }}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="delete-button"
-                      onClick={() => handleDeleteSubtype(selectedCategoryIndex, selectedTypeIndex, index)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
+              <li key={index}>
+                {subtype.title}
               </li>
             ))}
           </ul>
@@ -336,7 +231,7 @@ function FrameworkCreator({ onSave, onCancel, initialData }) {
       <div className="actions">
         <button 
           onClick={handleSave}
-          disabled={!frameworkName.trim() || categories.length === 0}
+          disabled={!isValid}
           className="save"
         >
           {initialData ? 'Save Changes' : 'Save Framework'}

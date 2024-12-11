@@ -1,0 +1,62 @@
+/* ... (previous styles remain the same) ... */
+
+.category-item,
+.type-item,
+.subtype-item {
+  margin-bottom: 0.5rem;
+}
+
+.category-header,
+.type-header,
+.subtype-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.category-actions,
+.type-actions,
+.subtype-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-button,
+.delete-button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  border-radius: 4px;
+}
+
+.edit-button {
+  background-color: #28a745;
+  color: white;
+}
+
+.edit-button:hover {
+  background-color: #218838;
+}
+
+.delete-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}
+
+.preview li {
+  transition: all 0.2s ease;
+}
+
+.preview li:hover {
+  background-color: #f8f9fa;
+}
+
+.selected {
+  background-color: #e9ecef;
+}

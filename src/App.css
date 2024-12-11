@@ -1,0 +1,283 @@
+.app {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  color: #1a1a1a;
+  margin: 0;
+  font-weight: 700;
+}
+
+/* Framework Controls - New Addition */
+.framework-controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+  align-items: center;
+}
+
+.framework-select {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  min-width: 200px;
+  background-color: white;
+}
+
+.create-framework-btn,
+.edit-framework-btn,
+.delete-framework-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  color: white;
+}
+
+.create-framework-btn {
+  background-color: #1F77B4;
+}
+
+.edit-framework-btn {
+  background-color: #2CA02C;
+}
+
+.delete-framework-btn {
+  background-color: #dc3545;
+}
+
+.framework-controls button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+/* End Framework Controls */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.main-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.main-categories.horizontal {
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.category-button {
+  padding: 1.2rem 1.8rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.main-categories.horizontal .category-button {
+  flex: 1;
+  margin: 0 0.5rem;
+  text-align: center;
+}
+
+.category-button::after {
+  content: '→';
+  position: absolute;
+  right: 1.5rem;
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.main-categories.horizontal .category-button::after {
+  display: none;
+}
+
+.category-button:hover::after {
+  opacity: 1;
+}
+
+/* Configuration colors */
+.category-button.configuration {
+  background-color: #1F77B4;
+}
+
+.category-button.configuration:hover,
+.category-button.configuration.selected {
+  background-color: #145380;
+}
+
+/* Offering colors */
+.category-button.offering {
+  background-color: #FF7F0E;
+}
+
+.category-button.offering:hover,
+.category-button.offering.selected {
+  background-color: #CC6600;
+}
+
+/* Experience colors */
+.category-button.experience {
+  background-color: #2CA02C;
+}
+
+.category-button.experience:hover,
+.category-button.experience.selected {
+  background-color: #1F771F;
+}
+
+.content-area {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+}
+
+.types-panel {
+  background-color: #f8f9fa;
+  border-radius: 16px;
+  padding: 2rem;
+}
+
+.types-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.show-all-button,
+.type-button {
+  padding: 1rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  font-weight: 500;
+  width: 100%;
+}
+
+/* Configuration type buttons */
+.configuration .show-all-button,
+.configuration .type-button {
+  background-color: rgba(31, 119, 180, 0.1);
+  color: #1F77B4;
+}
+
+.configuration .show-all-button:hover,
+.configuration .show-all-button.selected,
+.configuration .type-button:hover,
+.configuration .type-button.selected {
+  background-color: rgba(31, 119, 180, 0.2);
+}
+
+/* Offering type buttons */
+.offering .show-all-button,
+.offering .type-button {
+  background-color: rgba(255, 127, 14, 0.1);
+  color: #FF7F0E;
+}
+
+.offering .show-all-button:hover,
+.offering .show-all-button.selected,
+.offering .type-button:hover,
+.offering .type-button.selected {
+  background-color: rgba(255, 127, 14, 0.2);
+}
+
+/* Experience type buttons */
+.experience .show-all-button,
+.experience .type-button {
+  background-color: rgba(44, 160, 44, 0.1);
+  color: #2CA02C;
+}
+
+.experience .show-all-button:hover,
+.experience .show-all-button.selected,
+.experience .type-button:hover,
+.experience .type-button.selected {
+  background-color: rgba(44, 160, 44, 0.2);
+}
+
+.details-panel {
+  background-color: #f8f9fa;
+  border-radius: 16px;
+  padding: 2rem;
+}
+
+.type-details {
+  margin-bottom: 2rem;
+}
+
+.type-details:last-child {
+  margin-bottom: 0;
+}
+
+.type-details h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #1a1a1a;
+}
+
+.type-details p {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.tactics-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.tactic-card {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.tactic-card h3 {
+  margin: 0 0 0.5rem 0;
+  color: #1a1a1a;
+}
+
+.tactic-card p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 1024px) {
+  .content-area {
+    grid-template-columns: 1fr;
+  }
+  
+  .main-categories.horizontal {
+    flex-direction: column;
+  }
+}
